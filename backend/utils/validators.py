@@ -18,3 +18,17 @@ def ofAge(data_nasc):
     today = datetime.now()
     age = today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
     return age >= 18
+
+def dentro_limite_24h(data_pedido_str):
+    """
+    Verifica se a data/hora do pedido está dentro do limite de 24 horas.
+    Recebe a data em string no formato ISO (ex: '2025-05-08T14:30:00')
+    """
+    try:
+        data_pedido = datetime.fromisoformat(data_pedido_str)
+    except ValueError:
+        return False
+
+    agora = datetime.now()
+    diferenca = agora - data_pedido
+    return diferenca.total_seconds() <= 86400  # 24h em segundos

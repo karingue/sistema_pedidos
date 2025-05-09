@@ -1,0 +1,38 @@
+{% extends 'layout.html'%}
+{% block title %}Clientes{% endblock %}
+
+{% block content %}
+    <h2>Clientes</h2>
+    <table id="tabelaClientes" border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>CPF</th>
+                <th>Data de Nascimento</th>
+                <th>Endereço</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table> <br><hr><br>
+    
+    
+    <h2>Cadastrar Clientes</h2>
+        <form id="formCliente">
+            <input type="text" id="nome" name="nome" placeholder="Nome" required><br>
+            <input type="email" id="email" placeholder="Email" required><br>
+            <input type="text" id="cpf" placeholder="CPF" required><br>
+            <input type="date" id="data_nascimento" required><br>
+            <input type="text" id="endereco" placeholder="Endereço" required><br>
+            <button type="submit">Cadastrar</button><br>
+        </form> <br><br>
+
+    
+
+    <script src="{{url_for('static', filename='js/clientes.js') }}" defer></script>
+
+{% endblock %}

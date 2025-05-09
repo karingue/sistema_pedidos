@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify, request
 from database import get_connection
 from datetime import datetime
+from utils.validators import dentro_limite_24h
 
 pedido_bp = Blueprint('pedido', __name__)
 
-@pedido_bp.route('/pedidos', methods=['POST'])
+@pedido_bp.route('/pedidos/create', methods=['POST'])
 def criar_pedido():
     dados = request.get_json()
     cliente_id = dados.get('cliente_id')
@@ -54,9 +55,10 @@ def atualizar_pedido(pedido_id):
         if not pedido:
             return jsonify({'error': 'Pedido não encontrado'}), 404
 
-        data_pedido = pedido['data_pedido']
-        if (datetime.now() - data_pedido).total_seconds() > 86400:
-            return jsonify({'error': 'Pedido não pode ser alterado após 24 horas'}), 403
+        data_pedido = pedido['data_pedido'] #Data do pedido Existente
+
+        if not dentro_limite_24h(data_pedido):
+            return jsonify({'error': 'Pedido não pode ser atualizado após 24 horas'}), 403
 
         dados = request.get_json()
         itens = dados.get('itens')
@@ -120,7 +122,7 @@ def obter_pedido(pedido_id):
 
 
 
-@pedido_bp.route('/pedidos', methods=['GET'])
+@pedido_bp.route('/pedidos/listAll', methods=['GET'])
 def listar_pedidos():
     nome = request.args.get('nome')
     inicio = request.args.get('inicio')
