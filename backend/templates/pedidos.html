@@ -1,64 +1,98 @@
-{% extends 'layout.html' %}
-{% block title %}Pedidos{% endblock %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Pedidos</title>
+</head>
+<body>
+    <h1>Pedidos</h1>
 
-{% block content %}
+    <button onclick="exibirFormularioCriacao()">Criar Pedido</button>
 
-<h2>Pedidos</h2>
+    <div id="formularioCriacao" style="display:none;">
+        <h2>Criar Pedido</h2>
+        <form id="formNovoPedido">
+            <label for="clienteId">ID Cliente:</label>
+            <input type="number" id="clienteId" name="clienteId" required><br><br>
 
-<table border="1" id="tabelaPedidos">
-    <thead>
-        <tr>
-            <th>Cliente</th>
-            <th>Data</th>
-            <th>Valor Total</th>
-            <th>Itens</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+            <div id="itens">
+                <div class="item">
+                    <h3>Item 1</h3>
+                    <label for="nome">Nome:</label>
+                    <input type="text" class="nome" required><br><br>
+                    <label for="precoUnitario">Preço Unitário:</label>
+                    <input type="number" class="preco_unitario" required><br><br>
+                    <label for="quantidade">Quantidade:</label>
+                    <input type="number" class="quantidade" required><br><br>
+                </div>
+            </div>
 
-<br><hr><br>
-
-<h2>Cadastrar Pedido</h2>
-<form id="formPedido">
-    <label>ID do Cliente:</label>
-    <input type="number" id="cliente_id" required><br><br>
-
-    <div id="itensPedido">
-        <h2>Itens</h2>
-        <div class="item">
-            <input type="text" placeholder="Descrição" class="descrição_item" required>
-            <input type="number" placeholder="Quantidade" class="quantidade" required>
-            <input type="number" placeholder="Preço Unitario" class="preco_unitario" required><br><br>
-        </div>
+            <button type="button" onclick="adicionarItem()">Adicionar Item</button><br><br>
+            <button type="button" onclick="enviarPedido()">Enviar Pedido</button>
+        </form>
     </div>
-    <button type="button" onclick="adicionarItem()">Adicionar Item</button><br><br>
-    <button type="submit">Cadastrar Pedido</button>
-</form>
 
-<script src="{{url_for('static', filename='js/pedidos.js') }}" defer></script>
+    <div id="pedidos"></div>
 
-<!-- Modal de Edição de Pedido -->
-<div class="modal fade" id="modalEditarPedido" tabindex="-1" aria-labelledby="modalEditarPedidoLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalEditarPedidoLabel">Editar Pedido</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="editPedidoId">
-          <div id="edit-itens-container" class="mb-3"></div>
-          <button type="button" class="btn btn-secondary" onclick="adicionarItemEdit()">Adicionar Item</button>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button class="btn btn-primary" onclick="salvarEdicaoPedido()">Salvar Alterações</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
+    <script>
+        let itensCount = 1;
 
-{% endblock %}
+        function adicionarItem() {
+            itensCount++;
+            const novoItem = document.createElement('div');
+            novoItem.classList.add('item');
+            novoItem.innerHTML = `
+                <h3>Item ${itensCount}</h3>
+                <label for="nome">Nome:</label>
+                <input type="text" class="nome" required><br><br>
+                <label for="precoUnitario">Preço Unitário:</label>
+                <input type="number" class="preco_unitario" required><br><br>
+                <label for="quantidade">Quantidade:</label>
+                <input type="number" class="quantidade" required><br><br>
+            `;
+            document.getElementById('itens').appendChild(novoItem);
+        }
+
+        function exibirFormularioCriacao() {
+            document.getElementById('formularioCriacao').style.display = 'block';
+        }
+
+        async function enviarPedido() {
+            const clienteId = document.getElementById('clienteId').value;
+            const itens = [];
+
+            const itensElementos = document.querySelectorAll('.item');
+            for (const itemElement of itensElementos) {
+                const nome = itemElement.querySelector('.nome').value;
+                const preco = parseFloat(itemElement.querySelector('.preco_unitario').value);
+                const quantidade = parseInt(itemElement.querySelector('.quantidade').value);
+
+                if (isNaN(preco) || preco <= 0 || isNaN(quantidade) || quantidade <= 0) {
+                    alert("Preço e Quantidade devem ser valores válidos!");
+                    return;
+                }
+
+                itens.push({ nome, preco_unitario: preco, quantidade });
+            }
+
+            const response = await fetch('/pedidos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ cliente_id: clienteId, itens })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert(result.message);
+                document.getElementById('formularioCriacao').reset();
+                document.getElementById('formularioCriacao').style.display = 'none';
+            } else {
+                alert(result.error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,202 +1,95 @@
-from flask import Blueprint, jsonify, request
-from database import get_connection
-from datetime import datetime
-from utils.validators import dentro_limite_24h
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
 
-pedido_bp = Blueprint('pedido', __name__)
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://user:password@localhost/database'
+db = SQLAlchemy(app)
 
-@pedido_bp.route('/pedidos/create', methods=['POST'])
+class Pedido(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    cliente_id = db.Column(db.Integer, nullable=False)
+    itens = db.relationship('Item', backref='pedido', lazy=True)
+
+class Item(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    pedido_id = db.Column(db.Integer, db.ForeignKey('pedido.id'), nullable=False)
+    nome = db.Column(db.String(100), nullable=False)
+    preco_unitario = db.Column(db.Float, nullable=False)
+    quantidade = db.Column(db.Integer, nullable=False)
+
+@app.route('/pedidos', methods=['POST'])
 def criar_pedido():
-    dados = request.get_json()
-    cliente_id = dados.get('cliente_id')
-    itens = dados.get('itens')
+    data = request.get_json()
+    cliente_id = data.get('cliente_id')
+    itens_data = data.get('itens')
 
-    if not itens or len(itens) == 0: return jsonify({'error': 'Pedido deve conter pelo menos um item'}), 400
+    pedido = Pedido(cliente_id=cliente_id)
+    db.session.add(pedido)
+    db.session.commit()
 
-    data_pedido = datetime.now()
-    valor_total = sum(item['quantidade'] * item['preco_unitario']for item in itens)
+    for item_data in itens_data:
+        item = Item(pedido_id=pedido.id, nome=item_data['nome'], preco_unitario=item_data['preco_unitario'], quantidade=item_data['quantidade'])
+        db.session.add(item)
 
-    conn = get_connection()
-    cursor = conn.cursor()
+    db.session.commit()
+    return jsonify({'message': 'Pedido criado com sucesso!'}), 201
 
-    try:
-        #Inserindo o pedido no banco de dados
-        cursor.execute("INSERT INTO pedidos (cliente_id, data_pedido, valor_total) VALUES (%s,%s,%s)", 
-                       (cliente_id, data_pedido, valor_total))
-        pedido_id = cursor.lastrowid
-
-        #Inserindo os itens do pedido no banco de dados
-        for item in itens:
-            cursor.execute("INSERT INTO itens_pedido (pedido_id, descricao_item, quantidade, preco_unitario) VALUES (%s,%s,%s,%s)",
-                           (pedido_id, item['descricao_item'], item['quantidade'], item['preco_unitario']))
-        
-        conn.commit()
-        return jsonify({'message': 'Pedido criado com sucesso!', 'pedido_id': pedido_id}), 201 
-
-    except Exception as e:
-        conn.rollback()  
-        return jsonify({'error': str(e)}), 500 
-
-    finally:
-        cursor.close()
-        conn.close()
-
-
-@pedido_bp.route('/pedidos/<int:pedido_id>', methods=['PUT'])
-def atualizar_pedido(pedido_id):
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    try:
-        # Verifica se o pedido existe e pega a data
-        cursor.execute("SELECT data_pedido FROM pedidos WHERE id = %s", (pedido_id,))
-        pedido = cursor.fetchone()
-
-        if not pedido:
-            return jsonify({'error': 'Pedido não encontrado'}), 404
-
-        data_pedido = pedido['data_pedido'] #Data do pedido Existente
-
-        if not dentro_limite_24h(data_pedido):
-            return jsonify({'error': 'Pedido não pode ser atualizado após 24 horas'}), 403
-
-        dados = request.get_json()
-        itens = dados.get('itens')
-
-        if not itens or len(itens) == 0:
-            return jsonify({'error': 'Pedido deve conter pelo menos um item'}), 400
-
-        # Apaga os itens antigos
-        cursor.execute("DELETE FROM itens_pedido WHERE pedido_id = %s", (pedido_id,))
-
-        # Insere os novos itens
-        valor_total = 0
-        for item in itens:
-            valor_total += item['quantidade'] * item['preco_unitario']
-            cursor.execute("""
-                INSERT INTO itens_pedido (pedido_id, descricao_item, quantidade, preco_unitario)
-                VALUES (%s, %s, %s, %s)
-            """, (pedido_id, item['descricao_item'], item['quantidade'], item['preco_unitario']))
-
-        # Atualiza valor_total do pedido
-        cursor.execute("UPDATE pedidos SET valor_total = %s WHERE id = %s", (valor_total, pedido_id))
-
-        conn.commit()
-        return jsonify({'message': 'Pedido atualizado com sucesso!'})
-
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'error': str(e)}), 500
-
-    finally:
-        cursor.close()
-        conn.close()
-
-
-@pedido_bp.route('/pedidos/<int:pedido_id>', methods=['GET'])
+@app.route('/pedidos/<int:pedido_id>', methods=['GET'])
 def obter_pedido(pedido_id):
-    conn = get_connection()  # Conexão com o banco
-    cursor = conn.cursor(dictionary=True)
+    pedido = Pedido.query.get(pedido_id)
+    if not pedido:
+        return jsonify({'error': f'O pedido {pedido_id} não foi encontrado!'}), 404
 
-    try:
-        # Buscando o pedido pelo ID
-        cursor.execute("SELECT id, cliente_id, data_pedido, valor_total FROM pedidos WHERE id = %s", (pedido_id,))
-        pedido = cursor.fetchone()
+    itens = [{
+        'nome': item.nome,
+        'preco_unitario': item.preco_unitario,
+        'quantidade': item.quantidade
+    } for item in pedido.itens]
 
-        if not pedido:
-            return jsonify({'error': 'Pedido não encontrado'}), 404
+    return jsonify({'pedido': {'cliente_id': pedido.cliente_id, 'itens': itens}})
 
-        # Buscando os itens do pedido
-        cursor.execute("SELECT descricao_item, quantidade, preco_unitario FROM itens_pedido WHERE pedido_id = %s", (pedido_id,))
-        pedido['itens'] = cursor.fetchall()
+@app.route('/pedidos/<int:pedido_id>', methods=['PUT'])
+def editar_pedido(pedido_id):
+    pedido = Pedido.query.get(pedido_id)
+    if not pedido:
+        return jsonify({'error': f'O pedido {pedido_id} não foi encontrado!'}), 404
 
-        return jsonify(pedido)
+    data = request.get_json()
+    pedido.cliente_id = data.get('cliente_id', pedido.cliente_id)
 
-    except Exception as e:
-        # Aqui estamos capturando qualquer exceção que possa ocorrer
-        return jsonify({'error': str(e)}), 500
+    db.session.commit()
 
-    finally:
-        cursor.close()
-        conn.close()
+    for item_data in data.get('itens', []):
+        item = Item.query.filter_by(pedido_id=pedido_id, nome=item_data['nome']).first()
+        if item:
+            item.preco_unitario = item_data['preco_unitario']
+            item.quantidade = item_data['quantidade']
+        else:
+            new_item = Item(pedido_id=pedido_id, nome=item_data['nome'], preco_unitario=item_data['preco_unitario'], quantidade=item_data['quantidade'])
+            db.session.add(new_item)
 
+    db.session.commit()
+    return jsonify({'message': 'Pedido atualizado com sucesso!'}), 200
 
-
-@pedido_bp.route('/pedidos/listAll', methods=['GET'])
-def listar_pedidos():
-    nome = request.args.get('nome')
-    inicio = request.args.get('inicio')
-    fim = request.args.get('fim')
-
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    try:
-        base_query = """SELECT p.id, p.data_pedido, p.valor_total, c.nome AS cliente
-                        FROM pedidos p
-                        JOIN clientes c ON p.cliente_id = c.id
-                        WHERE 1 = 1"""
-
-        params = []
-
-        if nome:
-            base_query += " AND c.nome LIKE %s"
-            params.append(f"%{nome}%")
-        if inicio and fim:
-            base_query += " AND p.data_pedido BETWEEN %s AND %s"
-            params.extend([inicio, fim])
-
-        cursor.execute(base_query, tuple(params))
-        pedidos = cursor.fetchall()
-
-        for pedido in pedidos:
-            cursor.execute("SELECT descricao_item, quantidade, preco_unitario FROM itens_pedido WHERE pedido_id = %s", (pedido['id'],))
-            pedido['itens'] = cursor.fetchall()
-
-        return jsonify(pedidos)
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-    finally:
-        cursor.close()
-        conn.close()
-
-
-
-
-@pedido_bp.route('/pedidos/<int:pedido_id>', methods=['DELETE'])
+@app.route('/pedidos/<int:pedido_id>', methods=['DELETE'])
 def excluir_pedido(pedido_id):
-    conn = get_connection()
-    cursor = conn.cursor()
+    pedido = Pedido.query.get(pedido_id)
+    if not pedido:
+        return jsonify({'error': f'O pedido {pedido_id} não foi encontrado!'}), 404
 
-    try:
-        #Verificando se o pedido existe
-        cursor.execute("SELECT id FROM pedidos WHERE id = %s", (pedido_id,))
-        pedido = cursor.fetchone()
-        if not pedido:
-            return jsonify({'error': 'O pedido {pedido_id} não foi encontrado!!'}), 404
+    db.session.delete(pedido)
+    db.session.commit()
+    return jsonify({'message': 'Pedido excluído com sucesso!'}), 200
 
-        #Deletando todos os itens do pedido
-        cursor.execute("DELETE FROM itens_pedido WHERE pedido_id = %s", (pedido_id,))
+@app.route('/pedidos/item/<int:item_id>', methods=['DELETE'])
+def excluir_item(item_id):
+    item = Item.query.get(item_id)
+    if not item:
+        return jsonify({'error': 'Item não encontrado!'}), 404
 
-        #Deletando o pedido 
-        cursor.execute("DELETE FROM pedidos WHERE id = %s", (pedido_id,))
+    db.session.delete(item)
+    db.session.commit()
+    return jsonify({'message': 'Item excluído com sucesso!'}), 200
 
-        #Reset do auto incremento do banco de dados
-        cursor.execute("SELECT MAX(id) FROM pedidos")
-        max_id = cursor.fetchone()[0] or 0 #Pegando o maior ID Atual
-        #Resetando o contador do auto incremento 
-        if max_id is not None:
-            cursor.execute(f"ALTER TABLE pedidos AUTO_INCREMENT = {max_id + 1}")
-        conn.commit() #Comitando as alterações para o banco de dados
-
-        return jsonify({'message': f'Pedido {pedido_id} excluido com sucesso!!'}), 200
-    
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'error': str(e)}), 500
-    
-    finally:
-        cursor.close()
-        conn.close()
+if __name__ == '__main__':
+    app.run(debug=True)
