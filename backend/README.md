@@ -89,7 +89,7 @@ Certifique-se de estar na pasta do projeto e execute:
 pip install -r requirements.txt
 ```
 
----
+
 
 ### 4. Configure o banco
 
@@ -104,7 +104,7 @@ config = {
 }
 ```
 
----
+
 
 ### 5. Execute a aplicação
 
@@ -114,16 +114,13 @@ python app.py
 
 O servidor estará disponível em: `http://localhost:5000`
 
----
 
 ## 📄 Documentação da API
 
-Você pode importar o arquivo `.json` de documentação no [Postman](https://www.postman.com/) para testar as rotas da API.
+Você pode importar o arquivo `.json` de documentação no [Postman](https://documenter.getpostman.com/view/44796870/2sB2jAanMW) para testar as rotas da API.
 
----
 
 ## ✍️ Autor
 
-Gabriel Henrique Karing – [karing.com.br](https://karing.com.br)
+Gabriel Henrique Karing 
 
----
