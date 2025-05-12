@@ -1,38 +1,74 @@
-{% extends 'layout.html'%}
-{% block title %}Clientes{% endblock %}
+{% extends 'layout.html'%} <!-- Herda o layout base para o template -->
+{% block title %}Clientes{% endblock %} <!-- Define o título da página como 'Clientes' -->
 
-{% block content %}
-    <h2>Clientes</h2>
-    <table id="tabelaClientes" border="1">
+{% block content %} <!-- Início do bloco de conteúdo principal da página -->
+<div class="container mt-4">
+    <h1>Clientes</h1> <!-- Cabeçalho principal da página -->
+
+    <!-- Botão para abrir o formulário de cadastro de novo cliente -->
+    <button type="button" class="btn btn-primary mb-3" id="btnNovoCliente">
+        Novo Cliente
+    </button>
+
+    <!-- Formulário de cadastro de cliente (inicialmente oculto) -->
+    <form id="formCliente" class="mb-4" style="display: none;">
+        <input type="hidden" id="idCliente"> <!-- Campo oculto para armazenar o ID do cliente (em caso de edição) -->
+
+        <!-- Campo para o nome do cliente -->
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome</label>
+            <input type="text" class="form-control" id="nome" placeholder="Nome do Cliente" required>
+        </div>
+
+        <!-- Campo para o e-mail do cliente -->
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="Email" required>
+        </div>
+
+        <!-- Campo para o CPF do cliente -->
+        <div class="mb-3">
+            <label for="cpf" class="form-label">CPF</label>
+            <input type="text" class="form-control" id="cpf" placeholder="CPF" required>
+        </div>
+
+        <!-- Campo para a data de nascimento do cliente -->
+        <div class="mb-3">
+            <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+            <input type="date" class="form-control" id="data_nascimento" required>
+        </div>
+
+        <!-- Campo para o endereço do cliente -->
+        <div class="mb-3">
+            <label for="endereco" class="form-label">Endereço</label>
+            <input type="text" class="form-control" id="endereco" placeholder="Endereço do Cliente" required>
+        </div>
+
+        <!-- Botões de ação para o formulário -->
+        <button type="submit" class="btn btn-success">Cadastrar Cliente</button> <!-- Botão para salvar o novo cliente -->
+        <button type="button" class="btn btn-secondary" id="cancelarCliente">Cancelar</button> <!-- Botão para cancelar o formulário -->
+    </form>
+
+    <hr> <!-- Linha separadora -->
+
+    <!-- Tabela para exibir a lista de clientes -->
+    <table id="tabelaClientes" class="table table-striped">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>CPF</th>
-                <th>Data de Nascimento</th>
-                <th>Endereço</th>
-                <th></th>
+                <th>ID</th> <!-- Coluna de ID do cliente -->
+                <th>Nome</th> <!-- Coluna de nome do cliente -->
+                <th>Email</th> <!-- Coluna de e-mail do cliente -->
+                <th>CPF</th> <!-- Coluna de CPF do cliente -->
+                <th>Data de Nascimento</th> <!-- Coluna de data de nascimento do cliente -->
+                <th>Endereço</th> <!-- Coluna de endereço do cliente -->
+                <th>Ações</th> <!-- Coluna de ações, para editar ou excluir um cliente -->
             </tr>
         </thead>
-        <tbody>
+        <tbody></tbody> <!-- Corpo da tabela onde os dados dos clientes serão inseridos -->
+    </table>
+</div>
+{% endblock %}
 
-        </tbody>
-    </table> <br><hr><br>
-    
-    
-    <h2>Cadastrar Clientes</h2>
-        <form id="formCliente">
-            <input type="text" id="nome" name="nome" placeholder="Nome" required><br>
-            <input type="email" id="email" placeholder="Email" required><br>
-            <input type="text" id="cpf" placeholder="CPF" required><br>
-            <input type="date" id="data_nascimento" required><br>
-            <input type="text" id="endereco" placeholder="Endereço" required><br>
-            <button type="submit">Cadastrar</button><br>
-        </form> <br><br>
-
-    
-
-    <script src="{{url_for('static', filename='js/clientes.js') }}" defer></script>
-
+{% block scripts %} <!-- Bloco para inclusão de scripts no final da página -->
+<script src="{{url_for('static', filename='js/clientes.js') }}" defer></script> <!-- Inclui o script de clientes.js -->
 {% endblock %}

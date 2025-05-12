@@ -1,98 +1,92 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Pedidos</title>
-</head>
-<body>
+{% extends "layout.html" %} <!-- Estende o template base 'layout.html' para reutilizar o layout geral da aplicação -->
+
+{% block title %}Pedidos - Sistema de Pedidos{% endblock %} <!-- Modifica o título da página para "Pedidos - Sistema de Pedidos" -->
+
+{% block content %}
+<div class="container mt-4">
     <h1>Pedidos</h1>
 
-    <button onclick="exibirFormularioCriacao()">Criar Pedido</button>
+    <!-- Botão para abrir o formulário de novo pedido -->
+    <button type="button" class="btn btn-primary mb-3" id="btnNovoPedido">
+        Novo Pedido
+    </button>
 
-    <div id="formularioCriacao" style="display:none;">
-        <h2>Criar Pedido</h2>
-        <form id="formNovoPedido">
-            <label for="clienteId">ID Cliente:</label>
-            <input type="number" id="clienteId" name="clienteId" required><br><br>
+    <!-- Formulário de pedido (escondido inicialmente) -->
+    <form id="formPedido" class="mb-4" style="display: none;">
+        <input type="hidden" id="idPedido"> <!-- Campo oculto para armazenar o ID do pedido -->
 
-            <div id="itens">
-                <div class="item">
-                    <h3>Item 1</h3>
-                    <label for="nome">Nome:</label>
-                    <input type="text" class="nome" required><br><br>
-                    <label for="precoUnitario">Preço Unitário:</label>
-                    <input type="number" class="preco_unitario" required><br><br>
-                    <label for="quantidade">Quantidade:</label>
-                    <input type="number" class="quantidade" required><br><br>
-                </div>
-            </div>
+        <!-- Campo para inserir o ID do cliente -->
+        <div class="mb-3">
+            <label for="cliente_id" class="form-label">ID Cliente</label>
+            <input type="number" class="form-control" id="cliente_id" name="cliente_id" required placeholder="Digite o ID do cliente">
+        </div>
 
-            <button type="button" onclick="adicionarItem()">Adicionar Item</button><br><br>
-            <button type="button" onclick="enviarPedido()">Enviar Pedido</button>
-        </form>
+        <!-- Área para os itens do pedido, que será preenchida dinamicamente -->
+        <div id="itensPedido"></div>
+
+        <!-- Botão para adicionar um item ao pedido -->
+        <button type="button" class="btn btn-secondary mb-3" onclick="adicionarItem()">Adicionar Item</button>
+
+        <!-- Botão para enviar o pedido -->
+        <button type="submit" class="btn btn-success">Enviar Pedido</button>
+    </form>
+
+    <hr>
+
+    <!-- Filtros para a tabela de pedidos -->
+    <!-- Filtro por Cliente -->
+    <div class="mb-3">
+        <label for="filtroCliente" class="form-label">Filtrar por Cliente:</label>
+        <input type="text" id="filtroCliente" class="form-control" placeholder="Digite o nome do cliente" oninput="filtrarPedidos()">
     </div>
 
-    <div id="pedidos"></div>
+    <!-- Filtro por Data -->
+    <div class="mb-3">
+        <label for="filtroData" class="form-label">Filtrar por Data:</label>
+        <input type="date" id="filtroData" class="form-control" onchange="filtrarPedidos()">
+    </div>
 
-    <script>
-        let itensCount = 1;
+    <!-- Tabela de pedidos -->
+    <table id="tabelaPedidos" class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Data Pedido</th>
+                <th>Itens</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody></tbody> <!-- O conteúdo da tabela será preenchido dinamicamente -->
+    </table>
+</div>
+{% endblock %}
 
-        function adicionarItem() {
-            itensCount++;
-            const novoItem = document.createElement('div');
-            novoItem.classList.add('item');
-            novoItem.innerHTML = `
-                <h3>Item ${itensCount}</h3>
-                <label for="nome">Nome:</label>
-                <input type="text" class="nome" required><br><br>
-                <label for="precoUnitario">Preço Unitário:</label>
-                <input type="number" class="preco_unitario" required><br><br>
-                <label for="quantidade">Quantidade:</label>
-                <input type="number" class="quantidade" required><br><br>
-            `;
-            document.getElementById('itens').appendChild(novoItem);
-        }
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pedidos.js') }}"></script> <!-- Script externo específico para a página de pedidos -->
+<script>
+    // Função para filtrar os pedidos com base nos filtros de cliente e data
+    function filtrarPedidos() {
+        // Obtém os valores dos filtros de cliente e data
+        const filtroCliente = document.getElementById('filtroCliente').value.toLowerCase();
+        const filtroData = document.getElementById('filtroData').value;
+        
+        // Obtém todas as linhas da tabela de pedidos
+        const rows = document.querySelectorAll('#tabelaPedidos tbody tr');
+        
+        rows.forEach(row => {
+            // Extrai as informações de cliente e data de cada linha
+            const cliente = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const dataPedido = row.querySelector('td:nth-child(3)').textContent;
+            
+            // Verifica se a data do pedido atende ao filtro (se houver)
+            const dataValida = filtroData ? new Date(dataPedido) >= new Date(filtroData) : true;
+            // Verifica se o nome do cliente atende ao filtro (se houver)
+            const clienteValido = cliente.includes(filtroCliente);
 
-        function exibirFormularioCriacao() {
-            document.getElementById('formularioCriacao').style.display = 'block';
-        }
-
-        async function enviarPedido() {
-            const clienteId = document.getElementById('clienteId').value;
-            const itens = [];
-
-            const itensElementos = document.querySelectorAll('.item');
-            for (const itemElement of itensElementos) {
-                const nome = itemElement.querySelector('.nome').value;
-                const preco = parseFloat(itemElement.querySelector('.preco_unitario').value);
-                const quantidade = parseInt(itemElement.querySelector('.quantidade').value);
-
-                if (isNaN(preco) || preco <= 0 || isNaN(quantidade) || quantidade <= 0) {
-                    alert("Preço e Quantidade devem ser valores válidos!");
-                    return;
-                }
-
-                itens.push({ nome, preco_unitario: preco, quantidade });
-            }
-
-            const response = await fetch('/pedidos', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ cliente_id: clienteId, itens })
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                alert(result.message);
-                document.getElementById('formularioCriacao').reset();
-                document.getElementById('formularioCriacao').style.display = 'none';
-            } else {
-                alert(result.error);
-            }
-        }
-    </script>
-</body>
-</html>
+            // Exibe ou oculta a linha com base nos filtros aplicados
+            row.style.display = (clienteValido && dataValida) ? '' : 'none';
+        });
+    }
+</script>
+{% endblock %}

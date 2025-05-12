@@ -1,0 +1,26 @@
+{% extends "layout.html" %} <!-- Herda o layout base, permitindo a reutilização do template principal (por exemplo, cabeçalho e rodapé) -->
+
+{% block title %}Página Inicial - Sistema de Pedidos{% endblock %} <!-- Define o título da página, que será exibido na aba do navegador -->
+
+{% block content %} <!-- Início do conteúdo principal da página -->
+<div class="container mt-4">
+    <h1>Bem-vindo ao Sistema de Pedidos</h1> <!-- Cabeçalho principal da página -->
+    <p>Escolha uma das opções abaixo para acessar as telas de Pedidos ou Clientes:</p> <!-- Descrição breve do sistema -->
+
+    <div class="row">
+        <!-- Botão para acessar a tela de Pedidos -->
+        <div class="col-md-6 mb-3"> <!-- Cada botão ocupa metade da largura da tela (6 de 12 colunas) -->
+            <a href="/pedidos" class="btn btn-primary btn-lg w-100">
+                Acessar Pedidos
+            </a>
+        </div>
+
+        <!-- Botão para acessar a tela de Clientes -->
+        <div class="col-md-6 mb-3"> <!-- Cada botão ocupa metade da largura da tela (6 de 12 colunas) -->
+            <a href="/clientes" class="btn btn-secondary btn-lg w-100">
+                Acessar Clientes
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} <!-- Fim do conteúdo principal da página -->

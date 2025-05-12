@@ -1,0 +1,198 @@
+/* Estilos gerais */
+body {
+    background-color: #f8f9fa; /* Cor de fundo clara para o corpo */
+    font-family: 'Arial', sans-serif; /* Definindo a fonte */
+}
+
+.container {
+    margin-top: 30px; /* Espaçamento superior para o container */
+    text-align: center; /* Centralizando o conteúdo */
+}
+
+/* Navbar */
+.navbar {
+    margin-bottom: 30px; /* Espaçamento inferior para a navbar */
+}
+
+.navbar .navbar-brand {
+    font-weight: bold; /* Tornando o texto da marca mais destacado */
+}
+
+/* Tabela */
+.table th, .table td {
+    vertical-align: middle; /* Alinhamento centralizado verticalmente */
+    text-align: center; /* Alinhamento centralizado horizontalmente */
+    padding: 12px; /* Padding para aumentar o espaço nas células */
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f2f2f2; /* Cor de fundo alternada para linhas ímpares */
+}
+
+/* Formulários */
+#formPedido {
+    background-color: #ffffff; /* Cor de fundo branca para o formulário */
+    border-radius: 8px; /* Bordas arredondadas */
+    padding: 20px; /* Padding interno para o formulário */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombras suaves */
+    max-width: 100%; /* O formulário pode ocupar 100% da largura disponível */
+    margin: auto; /* Centraliza o formulário horizontalmente */
+}
+
+.form-label {
+    font-weight: bold; /* Deixando os rótulos em negrito */
+}
+
+.mb-3 label {
+    font-size: 16px; /* Tamanho de fonte para os rótulos */
+    color: #555; /* Cor do texto dos rótulos */
+}
+
+.mb-3 input {
+    font-size: 14px; /* Tamanho de fonte para os campos de input */
+}
+
+/* Botões */
+.btn-primary, .btn-secondary, .btn-danger, .btn-warning {
+    padding: 10px 20px; /* Padding interno para os botões */
+    font-size: 16px; /* Tamanho de fonte dos botões */
+    text-transform: uppercase; /* Transformando o texto em maiúsculas */
+}
+
+.btn-sm {
+    font-size: 14px; /* Tamanho de fonte reduzido para botões pequenos */
+    padding: 5px 10px; /* Padding reduzido para botões pequenos */
+}
+
+.table .btn-sm {
+    font-size: 14px; /* Tamanho de fonte reduzido para botões na tabela */
+    padding: 5px 10px; /* Padding reduzido para botões na tabela */
+}
+
+/* Formulário de itens */
+.item {
+    display: flex; /* Usando flexbox para os itens */
+    gap: 10px; /* Espaço entre os itens */
+    margin-bottom: 15px; /* Espaço inferior entre os itens */
+}
+
+.item input {
+    max-width: 150px; /* Limitando a largura máxima dos inputs */
+}
+
+.item input[type="text"], .item input[type="number"] {
+    font-size: 14px; /* Tamanho de fonte para os campos de texto e número */
+}
+
+.item button {
+    font-size: 14px; /* Tamanho de fonte para os botões de item */
+}
+
+/* Alertas */
+.alert {
+    font-size: 16px; /* Tamanho de fonte para os alertas */
+    margin-bottom: 20px; /* Espaço inferior para os alertas */
+}
+
+/* Estilos para a página inicial */
+.container h1 {
+    font-size: 2.5rem; /* Tamanho grande de fonte para o título */
+    font-weight: bold; /* Negrito para o título */
+    color: #333; /* Cor escura para o título */
+}
+
+.container p {
+    font-size: 1.2rem; /* Tamanho médio para os parágrafos */
+    color: #555; /* Cor para o texto dos parágrafos */
+    margin-bottom: 30px; /* Espaço inferior para os parágrafos */
+}
+
+.row {
+    margin-top: 20px; /* Espaço superior para as linhas */
+}
+
+/* Botões da página inicial */
+.btn {
+    font-size: 1.25rem; /* Tamanho de fonte para os botões */
+    padding: 15px; /* Padding interno para os botões */
+    text-transform: uppercase; /* Transformando o texto em maiúsculas */
+}
+
+.btn-primary {
+    background-color: #007bff; /* Cor de fundo para o botão primário */
+    border: none; /* Removendo a borda */
+}
+
+.btn-secondary {
+    background-color: #6c757d; /* Cor de fundo para o botão secundário */
+    border: none; /* Removendo a borda */
+}
+
+/* Hover effect */
+.btn:hover {
+    opacity: 0.9; /* Efeito de opacidade ao passar o mouse sobre o botão */
+}
+
+/* Responsividade */
+
+/* Para telas grandes (computador) */
+@media (min-width: 1024px) {
+    .container {
+        max-width: 1000px; /* Largura máxima para telas grandes */
+        margin: auto; /* Centralizando o container */
+    }
+
+    .navbar {
+        margin-bottom: 50px; /* Aumentando o espaçamento inferior da navbar */
+    }
+
+    #formPedido {
+        max-width: 900px; /* Largura máxima do formulário */
+    }
+}
+
+/* Para telas médias (notebook) */
+@media (max-width: 1023px) and (min-width: 768px) {
+    .container {
+        max-width: 90%; /* Largura reduzida para notebooks */
+    }
+
+    .navbar {
+        margin-bottom: 30px; /* Espaçamento inferior para a navbar */
+    }
+
+    .table th, .table td {
+        padding: 12px; /* Padding ajustado para a tabela */
+    }
+
+    #formPedido {
+        max-width: 85%; /* Largura reduzida do formulário */
+    }
+
+    .item input {
+        max-width: 100%; /* Permitindo que os inputs ocupem 100% da largura disponível */
+    }
+}
+
+/* Para telas pequenas (mobile) */
+@media (max-width: 767px) {
+    .container {
+        max-width: 95%; /* Largura ainda mais reduzida para dispositivos móveis */
+    }
+
+    .table th, .table td {
+        padding: 10px; /* Padding ajustado para a tabela */
+    }
+
+    .navbar {
+        margin-bottom: 20px; /* Espaçamento inferior reduzido para a navbar */
+    }
+
+    #formPedido {
+        max-width: 100%; /* O formulário ocupa 100% da largura */
+    }
+
+    .item input {
+        max-width: 100%; /* Inputs ocupando 100% da largura disponível */
+    }
+}

@@ -1,0 +1,884 @@
+{
+	"info": {
+		"_postman_id": "1dfa926e-8965-4794-91e4-9e6ae92d79e2",
+		"name": "Sistema de Pedidos API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44796870"
+	},
+	"item": [
+		{
+			"name": "Clientes",
+			"item": [
+				{
+					"name": "Criar novo Cliente",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"description": "Criar um novo cliente no sistema\n\n201 Created - Cliente criado com sucesso.  \n400 Bad Request - Campos Obrigatórios ausentes."
+					},
+					"response": [
+						{
+							"name": "Status Sucesso",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"nome\": \"Nome do Cliente\",\r\n  \"email\": \"email@dominio.com\",\r\n  \"cpf\": \"12345678900\",\r\n  \"data_nascimento\": \"1990-01-01\",\r\n  \"endereco\": \"Rua Exemplo, 123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/clientes",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"clientes"
+									]
+								}
+							},
+							"status": "CREATED",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.11.8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 12 May 2025 02:18:48 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "47"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Cliente criado com sucesso!\"\n}"
+						},
+						{
+							"name": "Status Erro",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"nome\": \"Nome do Cliente\",\r\n  \"email\": \"email@dominio.com\",\r\n  \"cpf\": \"123.456.789-00\",\r\n  \"data_nascimento\": \"1990-01-01\",\r\n  \"endereco\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/clientes",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"clientes"
+									]
+								}
+							},
+							"status": "BAD REQUEST",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.11.8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 12 May 2025 02:22:40 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "60"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Todos os campos são obrigatórios\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Listar Todos os Clientes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/clientes",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"clientes"
+							]
+						},
+						"description": "Retorna todos os clientes cadastrados no banco de dados.  \n200 OK - Lista de Clientes."
+					},
+					"response": [
+						{
+							"name": "Status Sucesso",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/clientes",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"clientes"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.11.8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 12 May 2025 02:25:17 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "663"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"cpf\": \"11535587938\",\n        \"data_nascimento\": \"Sun, 08 Aug 2004 00:00:00 GMT\",\n        \"email\": \"gabhenkar@gmail.com\",\n        \"endereco\": \"Rua Policial Lucas José da Silva\",\n        \"id\": 9,\n        \"nome\": \"Gabriel Karing\"\n    },\n    {\n        \"cpf\": \"12345678909\",\n        \"data_nascimento\": \"Sun, 08 Aug 2004 00:00:00 GMT\",\n        \"email\": \"gabhenkar1@gmail.com\",\n        \"endereco\": \"Rua Policial Lucas José da Silva\",\n        \"id\": 21,\n        \"nome\": \"Henrique Karing\"\n    },\n    {\n        \"cpf\": \"12345678900\",\n        \"data_nascimento\": \"Mon, 01 Jan 1990 00:00:00 GMT\",\n        \"email\": \"email@dominio.com\",\n        \"endereco\": \"Rua Exemplo, 123\",\n        \"id\": 23,\n        \"nome\": \"Nome do Cliente\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Clientes sem pedidos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"description": "Retorna todos os clientes que ainda não possuem pedidos associados.  \n  \n200 OK - Clientes Disponiveis retornados."
+					},
+					"response": [
+						{
+							"name": "Status Sucesso",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/clientes/disponiveis",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"clientes",
+										"disponiveis"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.11.8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 12 May 2025 02:26:44 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "298"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"clientes_disponiveis\": [\n        {\n            \"email\": \"gabhenkar1@gmail.com\",\n            \"id\": 21,\n            \"nome\": \"Henrique Karing\",\n            \"telefone\": \"12345678909\"\n        },\n        {\n            \"email\": \"email@dominio.com\",\n            \"id\": 23,\n            \"nome\": \"Nome do Cliente\",\n            \"telefone\": \"12345678900\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Excluir Cliente",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"description": "Remove um cliente pelo ID, caso ele exista.\n\nParametros de URL:\n\n- cliente_id - ID numérico do cliente a ser excluido.  \n    \n\n200 OK - Cliente excluido com sucesso."
+					},
+					"response": [
+						{
+							"name": "Status Sucesso",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/clientes/23",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"clientes",
+										"23"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.11.8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 12 May 2025 02:28:21 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "54"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Cliente excluído com sucesso!\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Pedidos",
+			"item": [
+				{
+					"name": "Listar Info - PEDIDO",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/pedidos",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"pedidos"
+							]
+						},
+						"description": "Retorna a lista de todos os pedidos com informações dos itens e do cliente.\n\n201 OK - Retorna a lista."
+					},
+					"response": [
+						{
+							"name": "Status Sucesso",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/pedidos",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"pedidos"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.11.8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 12 May 2025 02:44:21 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "613"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"cliente\": \"Gabriel Karing\",\n        \"cliente_id\": 9,\n        \"data_pedido\": \"Sun, 11 May 2025 22:44:06 GMT\",\n        \"id\": 21,\n        \"itens\": [\n            {\n                \"descricao_item\": \"Nome\",\n                \"id\": 53,\n                \"preco_unitario\": \"22.00\",\n                \"quantidade\": 2\n            }\n        ],\n        \"valor_total\": \"44.00\"\n    },\n    {\n        \"cliente\": \"Gabriel Karing\",\n        \"cliente_id\": 9,\n        \"data_pedido\": \"Sun, 11 May 2025 22:11:33 GMT\",\n        \"id\": 10,\n        \"itens\": [\n            {\n                \"descricao_item\": \"RESS\",\n                \"id\": 45,\n                \"preco_unitario\": \"32.00\",\n                \"quantidade\": 2\n            }\n        ],\n        \"valor_total\": \"64.00\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Novo Pedido",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"cliente_id\": 9,\r\n  \"itens\": [\r\n    {\r\n      \"descricao_item\": \"Camiseta M\",\r\n      \"quantidade\": 2,\r\n      \"preco_unitario\": 50.00\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/pedidos",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"pedidos"
+							]
+						},
+						"description": "Cria um novo pedido para um cliente cim uma lista de itens.  \n201 - Criado com sucesso."
+					},
+					"response": [
+						{
+							"name": "Status Sucesso",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"cliente_id\": 9,\r\n  \"itens\": [\r\n    {\r\n      \"descricao_item\": \"Camiseta M\",\r\n      \"quantidade\": 2,\r\n      \"preco_unitario\": 50.00\r\n    }\r\n  ]\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/pedidos",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"pedidos"
+									]
+								}
+							},
+							"status": "CREATED",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.11.8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 12 May 2025 02:45:49 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "65"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Pedido criado com sucesso!\",\n    \"pedido_id\": 23\n}"
+						}
+					]
+				},
+				{
+					"name": "Dados pedido - Especifico",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/pedidos/10",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"pedidos",
+								"10"
+							]
+						},
+						"description": "Retorna os dados de um pedido específico, incluindo os itens.\n\n200 OK - Retorna os dados com sucesso."
+					},
+					"response": [
+						{
+							"name": "Status Correto",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:5000/pedidos/10",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"pedidos",
+										"10"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.11.8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 12 May 2025 02:46:56 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "243"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"cliente_id\": 9,\n    \"data_pedido\": \"Sun, 11 May 2025 22:11:33 GMT\",\n    \"id\": 10,\n    \"itens\": [\n        {\n            \"descricao_item\": \"RESS\",\n            \"id\": 45,\n            \"preco_unitario\": \"32.00\",\n            \"quantidade\": 2\n        }\n    ],\n    \"valor_total\": \"64.00\"\n}"
+						}
+					]
+				},
+				{
+					"name": "DELETE - Pedido Especifico",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/pedidos/10",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"pedidos",
+								"10"
+							]
+						},
+						"description": "Exclui um pedido e todos seus itens associados."
+					},
+					"response": [
+						{
+							"name": "Status Sucesso",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:5000/pedidos/10",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"pedidos",
+										"10"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.11.8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 12 May 2025 02:50:54 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "53"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Pedido excluído com sucesso!\"\n}"
+						}
+					]
+				},
+				{
+					"name": "DELETE - Item | Pedido",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/pedidos/item/45",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"pedidos",
+								"item",
+								"45"
+							]
+						},
+						"description": "Exclui um item especifico de um pedido."
+					},
+					"response": [
+						{
+							"name": "Excluindo item dentro de Pedido",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:5000/pedidos/item/45",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"pedidos",
+										"item",
+										"45"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.11.8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 12 May 2025 02:52:55 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "51"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Item excluído com sucesso!\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Pedido com Filtro",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/pedidos/consulta?nome_cliente=Gabriel Karing&data_inicio=2025-01-01&data_fim=2025-12-31",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"pedidos",
+								"consulta"
+							],
+							"query": [
+								{
+									"key": "nome_cliente",
+									"value": "Gabriel Karing"
+								},
+								{
+									"key": "data_inicio",
+									"value": "2025-01-01"
+								},
+								{
+									"key": "data_fim",
+									"value": "2025-12-31"
+								}
+							]
+						},
+						"description": "Retorna pedidos com filtros dinâmicos por nome de cliente, data de início e fim."
+					},
+					"response": [
+						{
+							"name": "Pedido Filtro",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:5000/api/pedidos/consulta?nome_cliente=Gabriel Karing&data_inicio=2025-01-01&data_fim=2025-12-31",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"pedidos",
+										"consulta"
+									],
+									"query": [
+										{
+											"key": "nome_cliente",
+											"value": "Gabriel Karing"
+										},
+										{
+											"key": "data_inicio",
+											"value": "2025-01-01"
+										},
+										{
+											"key": "data_fim",
+											"value": "2025-12-31"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.11.8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 12 May 2025 02:54:41 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "384"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"cliente_id\": 9,\n        \"cliente_nome\": \"Gabriel Karing\",\n        \"data_pedido\": \"Sun, 11 May 2025 22:44:06 GMT\",\n        \"id\": 21,\n        \"total_gasto\": \"144.00\",\n        \"valor_total\": \"44.00\"\n    },\n    {\n        \"cliente_id\": 9,\n        \"cliente_nome\": \"Gabriel Karing\",\n        \"data_pedido\": \"Sun, 11 May 2025 23:45:49 GMT\",\n        \"id\": 23,\n        \"total_gasto\": \"144.00\",\n        \"valor_total\": \"100.00\"\n    }\n]"
+						}
+					]
+				}
+			]
+		}
+	]
+}

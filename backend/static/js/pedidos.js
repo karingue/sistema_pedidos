@@ -1,280 +1,182 @@
+// Quando o conteúdo da página for totalmente carregado
 document.addEventListener("DOMContentLoaded", () => {
-    carregarPedidos(); // Carrega todos os pedidos ao abrir a página
+    carregarPedidos(); // Carrega todos os pedidos ao carregar a página
 
-    // Ação do formulário de criação de pedido
-    document.getElementById("formPedido").addEventListener('submit', async (e) => {
-        e.preventDefault();
+    const form = document.getElementById("formPedido"); // Obtém o formulário de pedidos
 
-        const btn = e.submitter;
-        btn.disabled = true;
-        btn.textContent = "Enviando...";
+    // Exibe/oculta o formulário de criação de pedido ao clicar no botão "Novo Pedido"
+    document.getElementById("btnNovoPedido").addEventListener("click", () => {
+        form.reset(); // Limpa os campos do formulário
+        document.getElementById("idPedido").value = ""; // Limpa o campo de ID (novo pedido)
+        document.getElementById("itensPedido").innerHTML = ""; // Limpa os itens do pedido
+        form.style.display = form.style.display === "none" ? "block" : "none"; // Alterna entre exibir ou ocultar o formulário
+    });
 
-        const cliente_id = document.getElementById('cliente_id').value;
+    // Evento para submeter o formulário
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault(); // Previne o envio padrão do formulário
 
-        const itemElements = document.querySelectorAll('#itensPedido .item');
-        const itens = Array.from(itemElements).map(div => {
-            const descricao = div.querySelector(".descricao_item")?.value?.trim() || "";
-            const quantidade = parseInt(div.querySelector(".quantidade")?.value);
-            const preco = parseFloat(div.querySelector(".preco_unitario")?.value);
+        const btn = e.submitter; // Obtém o botão que enviou o formulário
+        btn.disabled = true; // Desabilita o botão durante o envio
+        btn.textContent = "Enviando..."; // Modifica o texto do botão
 
+        // Obtém os dados do formulário
+        const pedidoId = document.getElementById("idPedido").value; // ID do pedido (se estiver editando)
+        const cliente_id = document.getElementById("cliente_id").value; // ID do cliente
+
+        // Obtém os itens do pedido
+        const itens = Array.from(document.querySelectorAll('#itensPedido .item')).map(div => {
             return {
-                descricao_item: descricao,
-                quantidade,
-                preco_unitario: preco
+                id: div.dataset.itemId || null, // Obtém o ID do item (se existir)
+                descricao_item: div.querySelector(".descricao_item")?.value?.trim(), // Descrição do item
+                quantidade: parseInt(div.querySelector(".quantidade")?.value), // Quantidade
+                preco_unitario: parseFloat(div.querySelector(".preco_unitario")?.value) // Preço unitário
             };
         });
 
+        // Valida os campos dos itens
         const camposInvalidos = itens.some(item =>
-            item.descricao_item === "" ||
-            isNaN(item.quantidade) || item.quantidade <= 0 ||
+            !item.descricao_item || isNaN(item.quantidade) || item.quantidade <= 0 ||
             isNaN(item.preco_unitario) || item.preco_unitario <= 0
         );
 
         if (camposInvalidos) {
-            alert("Preencha todos os campos corretamente.");
-            btn.disabled = false;
-            btn.textContent = "Enviar Pedido";
-            return;
+            alert("Preencha todos os campos corretamente."); // Exibe mensagem de erro se algum campo estiver inválido
+            btn.disabled = false; // Habilita o botão novamente
+            btn.textContent = "Enviar Pedido"; // Restaura o texto do botão
+            return; // Interrompe a execução
         }
 
-        const response = await fetch('/pedidos/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cliente_id, itens })
+        // Prepara o payload para enviar
+        const payload = { cliente_id, itens };
+        const url = pedidoId ? `/api/pedidos/${pedidoId}` : "/api/pedidos"; // Define a URL dependendo se é um novo pedido ou edição
+        const method = pedidoId ? "PUT" : "POST"; // Usa PUT para edição e POST para criação
+
+        // Envia os dados para o backend
+        const response = await fetch(url, {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload) // Envia o corpo como JSON
         });
 
-        const result = await response.json();
+        const result = await response.json(); // Converte a resposta para JSON
+
+        // Verifica se o pedido foi salvo com sucesso
         if (response.ok) {
-            alert(result.message);
-            carregarPedidos(); // Atualiza a tabela após inserir
-            document.getElementById("formPedido").reset(); // Limpa o formulário
-            document.getElementById("itensPedido").innerHTML = ""; // Limpa os itens adicionados
+            alert(result.message || "Pedido salvo com sucesso!"); // Exibe mensagem de sucesso
+            form.reset(); // Limpa o formulário
+            document.getElementById("idPedido").value = ""; // Limpa o ID do pedido
+            document.getElementById("itensPedido").innerHTML = ""; // Limpa os itens
+            form.style.display = "none"; // Oculta o formulário
+            carregarPedidos(); // Recarrega a lista de pedidos
         } else {
-            alert(result.error || "Erro ao cadastrar Pedido");
+            alert(result.error || "Erro ao salvar o pedido."); // Exibe mensagem de erro
         }
 
-        btn.disabled = false;
-        btn.textContent = "Enviar Pedido";
+        btn.disabled = false; // Habilita o botão novamente
+        btn.textContent = "Enviar Pedido"; // Restaura o texto do botão
     });
 });
 
-// Função para carregar pedidos
-function carregarPedidos(){
-    fetch('/pedidos/listAll')
-        .then(response => response.json())
+// Função para carregar todos os pedidos
+function carregarPedidos() {
+    fetch("/api/pedidos") // Faz uma requisição para buscar os pedidos
+        .then(res => res.json()) // Converte a resposta para JSON
         .then(pedidos => {
-            console.log("Pedidos recebidos:", pedidos);
-            const tbody = document.querySelector('#tabelaPedidos tbody');
-            tbody.innerHTML = ""; // Limpa a tabela
+            const tbody = document.querySelector("#tabelaPedidos tbody"); // Obtém o corpo da tabela de pedidos
+            tbody.innerHTML = ""; // Limpa a tabela antes de preencher
 
             pedidos.forEach(pedido => {
-                const tr = document.createElement('tr');
-                const itensHTML = pedido.itens.map(item => `
-                    ${item.descricao_item} - (${item.quantidade}) - R$ ${parseFloat(item.preco_unitario).toFixed(2)}
-                `).join("<br>");
+                const tr = document.createElement("tr"); // Cria uma nova linha na tabela
 
+                // Garantir valores válidos para exibição
+                const id = pedido.id || "";
+                const cliente = pedido.cliente || "";
+                const data = new Date(pedido.data_pedido).toLocaleDateString(); // Formata a data do pedido
+
+                // Monta o HTML para exibir os itens do pedido
+                const itensHTML = (pedido.itens || []).map(item => {
+                    const preco = parseFloat(item.preco_unitario || 0);
+                    return `<li>${item.quantidade}x ${item.descricao_item} - R$${preco.toFixed(2)}</li>`;
+                }).join(''); // Cria uma lista de itens do pedido
+
+                // Calcula o total do pedido
+                const total = (pedido.itens || []).reduce((soma, item) => {
+                    const preco = parseFloat(item.preco_unitario || 0);
+                    const qtd = parseInt(item.quantidade || 0);
+                    return soma + (qtd * preco); // Calcula a soma do preço total
+                }, 0);
+
+                // Cria a linha da tabela com os dados do pedido
                 tr.innerHTML = `
-                    <td>${pedido.id}</td>
-                    <td>${pedido.cliente || 'Cliente não encontrado'}</td>
-                    <td>${new Date(pedido.data_pedido).toLocaleDateString()}</td>
-                    <td>R$ ${parseFloat(pedido.valor_total).toFixed(2)}</td>
-                    <td>${itensHTML}</td>
+                    <td>${id}</td>
+                    <td>${cliente}</td>
+                    <td>${data}</td>
                     <td>
-                        <button onclick="excluirPedido(${pedido.id})">Excluir</button>
-                        <button onclick="editarPedido(${pedido.id})">Editar</button>
+                        <ul>
+                            ${itensHTML}
+                            <li><strong>Total: R$ ${total.toFixed(2)}</strong></li>
+                        </ul>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-2" onclick="editarPedido(${id})">Editar</button>
+                        <button class="btn btn-sm btn-danger" onclick="excluirPedido(${id})">Excluir</button>
                     </td>
                 `;
-                tbody.appendChild(tr);
+                tbody.appendChild(tr); // Adiciona a linha na tabela
             });
         })
-        .catch(error => {
-            console.error("Erro ao carregar Pedidos:", error);
-            alert("Erro ao carregar Pedidos. Tente novamente mais tarde.");
-        });
+        .catch(err => console.error("Erro ao carregar pedidos:", err)); // Trata erros na requisição
 }
 
-// Função para excluir pedido
-function excluirPedido(id){
-    if (confirm("Tem certeza que deseja excluir este pedido?")) {
-        fetch(`/pedidos/${id}`, { method: 'DELETE' })
-            .then(res => res.json())
-            .then(data => {
-                alert(data.message || data.error);
-                carregarPedidos(); // Atualiza a tabela de pedidos após a exclusão
-            });
-    }
-}
-
-// Função para adicionar item ao pedido
-function adicionarItem() {
-    const div = document.createElement('div');
-    div.classList.add('item');
-    div.innerHTML = `
-        <input type="text" class="form-control mb-1 descricao_item" placeholder="Descrição" required>
-        <input type="number" class="form-control mb-1 quantidade" placeholder="Quantidade" required>
-        <input type="number" class="form-control mb-1 preco_unitario" placeholder="Preço Unitário" required> 
-        <button type="button" class="btn btn-danger btn-sm mb-3" onclick="removerItemSalvo(this)">Remover</button>
-    `;
-
-    // Adiciona ao container de itens dentro do modal
-    const container = document.getElementById('edit-itens-container');
-    if (container) {
-        container.appendChild(div);
-    } else {
-        console.error("Container de itens no modal não encontrado.");
-    }
-}
-
-
-// Função para editar pedido
-function editarPedido(pedidoId) {
-    fetch(`/pedidos/${pedidoId}`)
-        .then(response => response.json())
+// Função para editar um pedido
+function editarPedido(id) {
+    fetch(`/api/pedidos/${id}`) // Faz uma requisição para buscar o pedido pelo ID
+        .then(res => res.json()) // Converte a resposta para JSON
         .then(pedido => {
-            // Garantir que os elementos do formulário existem
-            const idClienteElement = document.getElementById('idCliente');
-            const idPedidoElement = document.getElementById('idPedido');
+            const form = document.getElementById("formPedido");
+            document.getElementById("idPedido").value = pedido.id; // Preenche o ID do pedido
+            document.getElementById("cliente_id").value = pedido.cliente_id; // Preenche o ID do cliente
 
-            if (idClienteElement && idPedidoElement) {
-                idClienteElement.value = pedido.id_cliente;
-                idPedidoElement.value = pedido.id;
-            } else {
-                console.error("Elementos para editar o pedido não encontrados.");
-                alert("Elementos para editar o pedido não encontrados.");
-                return; // Saia da função caso não encontre os elementos
-            }
+            const container = document.getElementById("itensPedido");
+            container.innerHTML = ""; // Limpa os itens do pedido no formulário
 
-            // Limpa os itens anteriores
-            const container = document.getElementById('edit-itens-container');
-            if (container) {
-                container.innerHTML = ''; // Limpa o conteúdo dos itens
-            }
+            // Adiciona os itens do pedido ao formulário
+            (pedido.itens || []).forEach(item => adicionarItem(item));
 
-            // Abre o modal primeiro
-            const modalElement = document.getElementById('pedidoModal');
-            const modal = new bootstrap.Modal(modalElement);
-
-            if (modalElement) {
-                modal.show(); // Agora, mostramos o modal
-            } else {
-                console.error("Modal não encontrado.");
-                alert("Erro ao abrir o modal.");
-                return; // Evita erros se o modal não for encontrado
-            }
-
-            // Aguarda um pequeno delay para garantir que o DOM do modal foi renderizado
-            setTimeout(() => {
-                pedido.itens.forEach(item => {
-                    const div = document.createElement('div');
-                    div.classList.add('item');
-
-                    if (item.id) {
-                        div.setAttribute('data-item-id', item.id);
-                    }
-
-                    div.innerHTML = `
-                        <input type="text" class="form-control mb-1 descricao_item" value="${item.descricao_item}" required>
-                        <input type="number" class="form-control mb-1 quantidade" value="${item.quantidade}" required>
-                        <input type="number" class="form-control mb-1 preco_unitario" value="${item.preco_unitario}" step="0.01" required>
-                        <button type="button" class="btn btn-danger btn-sm mb-3" onclick="removerItemSalvo(this)">Remover</button>
-                    `;
-
-                    container.appendChild(div);
-                });
-            }, 100); // Pequeno delay para esperar o DOM do modal
-
+            form.style.display = "block"; // Exibe o formulário de edição
         })
-        .catch(error => {
-            console.error('Erro ao buscar pedido:', error);
-            alert('Erro ao carregar pedido.');
-        });
+        .catch(err => console.error("Erro ao carregar pedido:", err)); // Trata erros na requisição
 }
 
-
-// Função para remover item salvo
-async function removerItemSalvo(botao) {
-    const div = botao.closest('.item');
-    const itemId = div.dataset.itemId;
-
-    if (!itemId) {
-        div.remove();
-        return;
-    }
-
-    if (!confirm("Tem certeza que deseja remover este item do pedido?")) return;
-
-    try {
-        const response = await fetch(`/itens_pedido/${itemId}`, {
-            method: 'DELETE',
-        });
-
-        if (!response.ok) {
-            const text = await response.text();
-            throw new Error(`Erro HTTP: ${response.status} - ${text}`);
-        }
-
-        let result;
-        try {
-            result = await response.json();
-        } catch (e) {
-            result = { message: 'Item removido com sucesso.' };
-        }
-
-        alert(result.message);
-        div.remove();
-    } catch (e) {
-        console.error("Erro ao remover item:", e);
-        alert("Erro ao remover item: " + e.message);
+// Função para excluir um pedido
+function excluirPedido(id) {
+    if (confirm("Tem certeza que deseja excluir este pedido?")) { // Solicita confirmação do usuário
+        fetch(`/api/pedidos/${id}`, { method: "DELETE" }) // Faz a requisição para excluir o pedido
+            .then(res => {
+                if (!res.ok) throw new Error("Falha ao excluir."); // Lança erro se a resposta não for OK
+                return res.json(); // Converte a resposta para JSON
+            })
+            .then(() => carregarPedidos()) // Recarrega a lista de pedidos após a exclusão
+            .catch(err => console.error("Erro ao excluir pedido:", err)); // Trata erros na requisição
     }
 }
 
-// Função para salvar as alterações no pedido
-async function salvarEdicaoPedido() {
-    const idPedido = document.getElementById('idPedido').value;
-    const itens = [];
+// Função para adicionar um item ao pedido
+function adicionarItem(item = {}) {
+    const container = document.getElementById("itensPedido");
+    const div = document.createElement("div");
+    div.classList.add("item", "mb-3"); // Adiciona classes de estilo
 
-    const itemElements = document.querySelectorAll('#edit-itens-container .item');
-    itemElements.forEach(itemElement => {
-        const descricao_item = itemElement.querySelector('.descricao_item').value;
-        const quantidade = itemElement.querySelector('.quantidade').value;
-        const preco_unitario = itemElement.querySelector('.preco_unitario').value;
+    if (item.id) div.dataset.itemId = item.id; // Define o ID do item (se existir)
 
-        if (descricao_item && quantidade && preco_unitario) {
-            itens.push({
-                descricao_item,
-                quantidade,
-                preco_unitario
-            });
-        }
-    });
-
-    const response = await fetch(`/pedidos/${idPedido}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ itens }) //  Removido id_cliente
-    });
-
-    const result = await response.json();
-    if (response.ok) {
-        alert(result.message);
-        carregarPedidos();
-        const modalElement = document.getElementById('pedidoModal');
-        const modal = bootstrap.Modal.getInstance(modalElement);
-        modal.hide();
-    } else {
-        alert(result.error || "Erro ao salvar alterações no pedido.");
-    }
-}
-
-
-function adicionarNovoProduto() {
-    const div = document.createElement('div');
-    div.classList.add('item');
+    // Cria o HTML para o item do pedido
     div.innerHTML = `
-        <input type="text" placeholder="Descrição" class="descricao_item" required>
-        <input type="number" placeholder="Quantidade" class="quantidade" required>
-        <input type="number" placeholder="Preço Unitário" class="preco_unitario" required> 
+        <input type="text" class="form-control mb-1 descricao_item" value="${item.descricao_item || ""}" placeholder="Nome do Item" required>
+        <input type="number" class="form-control mb-1 quantidade" value="${item.quantidade || ""}" placeholder="Quantidade" required>
+        <input type="number" class="form-control mb-1 preco_unitario" value="${item.preco_unitario || ""}" placeholder="Preço Unitário" step="0.01" required>
+        <button type="button" class="btn btn-danger btn-sm mb-3" onclick="this.parentElement.remove()">Remover</button>
     `;
-    document.getElementById("itensPedido").appendChild(div);
-}
 
+    container.appendChild(div); // Adiciona o item no container
+}
