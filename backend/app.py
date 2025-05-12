@@ -27,4 +27,4 @@ def pedidos():
     return render_template('pedidos.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)  # Executa a aplicação em modo de depuração
+    app.run(debug=False)  # Executa a aplicação em modo de depuração
